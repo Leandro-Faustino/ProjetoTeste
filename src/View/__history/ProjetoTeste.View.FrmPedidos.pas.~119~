@@ -1,0 +1,156 @@
+unit ProjetoTeste.View.FrmPedidos;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.Mask,
+  Vcl.DBCtrls, Vcl.Buttons,ProjetoTeste.View.FormProdutos, Data.DB, Vcl.Grids, Vcl.DBGrids,ProjetoTeste.Model.Conexao.dataModule;
+
+type
+  TFrmPedidos = class(TForm)
+    Panel1: TPanel;
+    Panel2: TPanel;
+    Panel3: TPanel;
+    Panel5: TPanel;
+    Label7: TLabel;
+    Label8: TLabel;
+    Label9: TLabel;
+    Label10: TLabel;
+    Label11: TLabel;
+    DBEdit6: TDBEdit;
+    DBEdit7: TDBEdit;
+    DBValorTotal1: TDBEdit;
+    DBData: TDBEdit;
+    BtnNovoPedido: TButton;
+    Label12: TLabel;
+    Panel4: TPanel;
+    Panel6: TPanel;
+    Label2: TLabel;
+    Label3: TLabel;
+    Label5: TLabel;
+    DBEdit1: TDBEdit;
+    DBCodProd: TDBEdit;
+    DBDescricaoProd: TDBEdit;
+    Button1: TButton;
+    Label4: TLabel;
+    DBUnidade: TDBEdit;
+    Label6: TLabel;
+    Label13: TLabel;
+    DBPrecoUnitario: TDBEdit;
+    Label14: TLabel;
+    DBSubTotal: TDBEdit;
+    DBGrid1: TDBGrid;
+    Panel7: TPanel;
+    Panel8: TPanel;
+    BtnGravar: TButton;
+    BtnNovoItem: TButton;
+    BtnGravafPedido: TButton;
+    BtnCancelar: TButton;
+    PnTotal: TPanel;
+    DBQuantidade: TDBEdit;
+    EdnomeCliente: TEdit;
+    procedure BtnNovoPedidoClick(Sender: TObject);
+    procedure BtnGravarClick(Sender: TObject);
+    procedure BtnNovoItemClick(Sender: TObject);
+    procedure BtnCancelarClick(Sender: TObject);
+    procedure DBQuantidadeExit(Sender: TObject);
+    procedure BtnGravafPedidoClick(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    FIdCliente : Integer;
+    FNomeCliente : String;
+    constructor create(PIDCliente : Integer; PNomeCliente : String);
+    destructor destroy; override;
+  end;
+
+var
+  FrmPedidos: TFrmPedidos;
+
+implementation
+
+{$R *.dfm}
+
+procedure TFrmPedidos.BtnCancelarClick(Sender: TObject);
+begin
+  DMconexao.QueryPedidos.cancel;
+  DMconexao.QueryItens.Cancel;
+  PnTotal.Caption := '0.00';
+
+end;
+
+procedure TFrmPedidos.BtnGravafPedidoClick(Sender: TObject);
+begin
+  DMconexao.QueryPedidos.edit;
+  DMconexao.QueryPedidosTOTAL.Value := DMconexao.QueryItensTotal.Value;
+  DMconexao.FDSchemaAdapter.ApplyUpdates(0);
+  DMconexao.QueryItens.EmptyDataSet;
+  DMconexao.QueryPedidos.EmptyDataSet;
+  PnTotal.Caption := '0.00';
+  EdnomeCliente.Text := EmptyStr;
+  showMessage('Pedido Realizado com sucesso!');
+  FrmPedidos.Close;
+  FrmPrincipal.EdNome.setfocus;
+end;
+
+procedure TFrmPedidos.BtnGravarClick(Sender: TObject);
+begin
+  if DMconexao.QueryPedidos.State in [dsInsert] then
+    DMconexao.QueryPedidos.Post;
+
+  if DMconexao.QueryItens.State in [dsInsert] then
+  begin
+    DMconexao.QueryItens.Post;
+    DMconexao.QueryPedidos.Edit;
+    DMconexao.QueryPedidosTOTAL.Value := DMconexao.QueryItensTotal.Value;
+    PnTotal.Caption := FormatFloat('R$ ###,##0.00', DMconexao.QueryItensTotal.Value);
+    BtnNovoItem.SetFocus;
+  end;
+end;
+
+procedure TFrmPedidos.BtnNovoItemClick(Sender: TObject);
+begin
+  DMconexao.QueryItens.Append;
+  DBCodProd.SetFocus;
+end;
+
+procedure TFrmPedidos.BtnNovoPedidoClick(Sender: TObject);
+begin
+  DMconexao.QueryPedidos.Open();
+  DMconexao.QueryPedidos.Append;
+  DBEdit7.Field.value := FIDCliente;
+  EdnomeCliente.text := FNomeCliente;
+  DBData.SetFocus;
+end;
+
+
+procedure TFrmPedidos.Button1Click(Sender: TObject);
+begin
+  form1.ShowModal;
+  DBCodProd.Field.Value := form1.FIDProduto;
+  DbDescricaoProd.field.value :=  form1.FDescProd;
+  DBPrecoUnitario.Field.Value := form1.FprecoUnitario;
+  DBUnidade.Field.Value := Form1.FUnidade;
+end;
+
+constructor TFrmPedidos.create(PIDCliente : Integer; PNomeCliente : String);
+begin
+  inherited create(Application);
+  FIdCliente := PIDCliente;
+  FNomeCliente := PNomeCliente;
+end;
+
+procedure TFrmPedidos.DBQuantidadeExit(Sender: TObject);
+begin
+  DBSubTotal.Field.Value := DBPrecoUnitario.Field.value * DBQuantidade.Field.value;
+ 
+end;
+
+destructor TFrmPedidos.destroy;
+begin
+  inherited;
+end;
+
+end.

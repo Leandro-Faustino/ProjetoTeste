@@ -1,0 +1,42 @@
+object DataModule1: TDataModule1
+  Height = 480
+  Width = 640
+  object FDConnection1: TFDConnection
+    Params.Strings = (
+      
+        'Database=C:\Users\Leand\OneDrive\Documentos\Embarcadero\Studio\P' +
+        'rojects\projetoTeste\database\TESTE01.FDB'
+      'User_Name=SYSDBA'
+      'Password=masterkey'
+      'DriverID=FB')
+    Connected = True
+    LoginPrompt = False
+    Left = 40
+    Top = 16
+  end
+  object FDTransaction1: TFDTransaction
+    Connection = FDConnection1
+    Left = 40
+    Top = 216
+  end
+  object FDQuery1: TFDQuery
+    Active = True
+    Connection = FDConnection1
+    UpdateTransaction = FDTransaction1
+    SQL.Strings = (
+      'select * from cliente')
+    Left = 40
+    Top = 104
+    object FDQuery1CODIGO: TIntegerField
+      AutoGenerateValue = arAutoInc
+      FieldName = 'CODIGO'
+      Origin = 'CODIGO'
+      ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
+    end
+    object FDQuery1NOME: TStringField
+      FieldName = 'NOME'
+      Origin = 'NOME'
+      Size = 40
+    end
+  end
+end

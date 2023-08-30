@@ -1,0 +1,50 @@
+unit ProjetoTeste.View.FormPesqCliente;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, ProjetoTeste.View.FormProdutos, Data.DB,
+  Vcl.Grids, Vcl.DBGrids, Vcl.StdCtrls,ProjetoTeste.Model.Conexao.dataModule, Vcl.ExtCtrls;
+
+type
+  TFrmPesqCliente = class(TForm1)
+    procedure Edit1Change(Sender: TObject);override;
+    procedure DBGrid1CellClick(Column: TColumn); override;
+  private
+    { Private declarations }
+  public
+    FIDCliente : integer;
+    FNome : String;
+  end;
+
+var
+  FrmPesqCliente: TFrmPesqCliente;
+
+implementation
+
+uses
+  projetoTeste.View.FormPrincipal;
+
+{$R *.dfm}
+
+procedure TFrmPesqCliente.DBGrid1CellClick(Column: TColumn);
+begin
+  FrmPesqCliente.close;
+  FIDCliente := DBGrid1.Fields[0].Value;
+  FNome := DBGrid1.Fields[1].Value;
+  FrmPrincipal.ednome.SetFocus;
+end;
+
+procedure TFrmPesqCliente.Edit1Change(Sender: TObject);
+begin
+  with DMconexao.QueryPEsqCliente do
+  begin
+    close;
+    sql.Clear;
+    sql.Add('select * from Cliente where nome like ''%'+Edit1.Text+'%''');
+    open;
+  end;
+end;
+
+end.

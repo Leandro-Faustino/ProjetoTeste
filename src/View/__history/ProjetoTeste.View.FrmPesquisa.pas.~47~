@@ -1,0 +1,105 @@
+unit ProjetoTeste.View.FrmPesquisa;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Data.DB, Vcl.Grids,
+  Vcl.DBGrids,ProjetoTeste.Model.Conexao.dataModule, Vcl.StdCtrls;
+
+type
+  TFrmPesquisa = class(TForm)
+    Panel1: TPanel;
+    Panel2: TPanel;
+    Panel3: TPanel;
+    Panel4: TPanel;
+    DBGrid1: TDBGrid;
+    Edit1: TEdit;
+    Button1: TButton;
+    Dspesquisa: TDataSource;
+    procedure DBGrid1DblClick(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
+
+  private
+    FCampoWhere, FTabela,fRetorno : String;
+
+  public
+    VRetorno : String;
+    constructor create(AOwner: TComponent;
+    pTabela, pCampoWhere,PcampoRetorno: string);
+     procedure BtnPesquisa;
+  end;
+
+var
+  FrmPesquisa: TFrmPesquisa;
+
+implementation
+
+uses
+  FireDAC.Comp.Client;
+
+{$R *.dfm}
+
+{ TFrmPesquisa }
+
+procedure TFrmPesquisa.Button1Click(Sender: TObject);
+begin
+   with DMconexao.QueryPesqCliente.sql do
+   begin
+     close;
+     Clear;
+     add('select * ');
+     add('from cliente');
+     add('where nome like :pnome');
+     DMconexao.QueryPesqCliente.ParamByName('pnome').AsString := '%leandro%';
+     DMconexao.QueryPesqCliente.open;
+   end;
+end;
+
+constructor TFrmPesquisa.create(AOwner: TComponent;
+  pTabela, pCampoWhere,PcampoRetorno: string);
+var
+  i : Integer;
+begin
+  inherited Create(AOWner);
+  DMconexao.ProjetoConnection.open;
+  FCampoWhere := pCampoWhere;
+  FTAbela := pTabela;
+  fRetorno := PcampoRetorno;
+  with DMconexao.QueryPesqCliente.sql do
+  begin
+    Clear;
+    add('select *');
+    add('from '+FTabela);
+  end;
+  DMconexao.QueryPesqCliente.Open();
+end;
+
+procedure TFrmPesquisa.DBGrid1DblClick(Sender: TObject);
+begin
+  VRetorno := '';
+  VRetorno := DMconexao.QueryPesqCliente.FieldByName(fRetorno).AsVariant;
+  DMconexao.QueryClientes.Close;
+  FrmPesquisa.ModalResult := Mryes;
+
+end;
+
+procedure TFrmPesquisa.BtnPesquisa();
+var
+   queryaux : TFDQuery;
+begin
+  queryaux := TFDQuery.create(nil);
+  queryaux.Connection := DMconexao.ProjetoConnection;
+  DsPesquisa.DataSet := queryaux;
+  with queryaux.sql do
+   begin
+     close;
+     Clear;
+     add('select * ');
+     add('from '+FTabela);
+     add('where '+ FCampoWhere+'like'+QuotedStr(Edit1.text)+'%');
+   end;
+   queryaux.Open();
+end;
+
+end.

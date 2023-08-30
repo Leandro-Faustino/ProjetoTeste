@@ -1,0 +1,58 @@
+unit ProjetoTeste.View.FormProdutos;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Data.DB, Vcl.Grids,
+  Vcl.DBGrids, Vcl.StdCtrls,ProjetoTeste.Model.Conexao.dataModule;
+
+type
+  TForm1 = class(TForm)
+    Panel1: TPanel;
+    Panel2: TPanel;
+    Panel3: TPanel;
+    Panel4: TPanel;
+    Label1: TLabel;
+    Edit1: TEdit;
+    Panel5: TPanel;
+    DBGrid1: TDBGrid;
+    procedure Edit1Change(Sender: TObject);
+    procedure DBGrid1CellClick(Column: TColumn);
+  private
+    { Private declarations }
+  public
+    FIDProduto : Integer;
+    FDescProd,FUnidade : String;
+    FprecoUnitario : double;
+
+  end;
+
+var
+  Form1: TForm1;
+
+implementation
+
+{$R *.dfm}
+uses ProjetoTeste.View.FrmPedidos;
+procedure TForm1.DBGrid1CellClick(Column: TColumn);
+begin
+  Form1.close;
+  FIDProduto := DBGrid1.Fields[1].Value;
+  FDescProd := DBGrid1.Fields[3].Value;
+  FprecoUnitario := DBGrid1.Fields[0].Value;
+  FUnidade := DBGrid1.Fields[4].Value;
+  FrmPedidos.DBQuantidade.setfocus;
+end;
+procedure TForm1.Edit1Change(Sender: TObject);
+begin
+  with DMconexao.QueryPesqProduto do
+  begin
+    close;
+    sql.Clear;
+    sql.Add('select * from Produtos where descricao like ''%'+Edit1.Text+'%''');
+    open;
+  end;
+end;
+
+end.
